@@ -63,7 +63,7 @@ const ProjectsSection: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/projects`);
+      const response = await fetch('https://my-portfolio-vqy5.onrender.com/api/projects');
       if (!response.ok) {
         let errorMessage = `HTTP error! status: ${response.status}`;
         throw new Error(errorMessage);
