@@ -1,6 +1,7 @@
 import app from './app';
 import dotenv from 'dotenv';
 import connectDB from './config/database';
+const cors = require('cors');
 
 // Load environment variables from .env file
 dotenv.config();
@@ -16,6 +17,10 @@ const startServer = async () => {
     app.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}`);
     });
+
+    app.use(cors({
+      origin: 'https://my-portfolio-gules-theta-99.vercel.app' // Your Vercel app URL
+    }));
   } catch (error) {
     console.error('Failed to start server or connect to database:', error);
     process.exit(1); // Exit process with failure code
