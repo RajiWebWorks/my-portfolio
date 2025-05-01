@@ -36,8 +36,8 @@ const ProjectsSection: React.FC = () => {
     threshold: 0.1,
   });
 
-  // Backend API URL
-  const API_BASE_URL = 'http://localhost:5000';
+  // Update the API base URL for production
+  const API_BASE_URL = 'https://my-portfolio-vqy5.onrender.com';
 
   // Helper function to format image URLs
   const getImageUrl = (imageUrl: string | undefined) => {
@@ -62,13 +62,16 @@ const ProjectsSection: React.FC = () => {
   const fetchProjects = async () => {
     setIsLoading(true);
     setError(null);
+    console.log('Fetching projects...');
     try {
-      const response = await fetch('https://my-portfolio-vqy5.onrender.com/api/projects');
+      const response = await fetch(`${API_BASE_URL}/api/projects`);
+      console.log('Response:', response);
       if (!response.ok) {
         let errorMessage = `HTTP error! status: ${response.status}`;
         throw new Error(errorMessage);
       }
       const data = await response.json();
+      console.log('Data:', data);
       if (data.success && Array.isArray(data.data)) {
         const processedData = data.data.map((project: Project) => ({
           ...project,
