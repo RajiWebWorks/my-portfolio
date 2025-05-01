@@ -30,7 +30,6 @@ const HeroSection: React.FC = () => {
       }
     };
 
-    // Ensure the event listener is added only in the browser
     if (typeof window !== 'undefined') {
       window.addEventListener('mousemove', handleMouseMove);
     }
