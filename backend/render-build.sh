@@ -2,7 +2,7 @@
 set -e  # Exit immediately if any command fails
 
 echo "👉 Installing dependencies..."
-npm install
+npm install --include=dev  # This ensures devDependencies are installed
 
 echo "🔨 Building project..."
 npm run build
