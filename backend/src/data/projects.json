@@ -1,0 +1,13 @@
+{
+  "title": "Personal Portfolio Website",
+  "description": "Full-stack portfolio showcasing my projects and skills. Built with Next.js (React/TypeScript) for the frontend and Node.js/Express/MongoDB for the backend API. Features dynamic project loading, Formspree contact integration, and responsive design with Tailwind CSS.",
+  "imageUrl": "/images/portfolio-screenshot.png",
+  "demoUrl": null,
+  "codeUrl": "https://github.com/RajiWebWorks/Fullstack-Portfolio"
+} 
+  "title": "Personal Portfolio Website",
+  "description": "Full-stack portfolio showcasing my projects and skills. Built with Next.js (React/TypeScript) for the frontend and Node.js/Express/MongoDB for the backend API. Features dynamic project loading, Formspree contact integration, and responsive design with Tailwind CSS.",
+  "imageUrl": "/images/portfolio-screenshot.png",
+  "demoUrl": null,
+  "codeUrl": "https://github.com/RajiWebWorks/Fullstack-Portfolio"
+} 
