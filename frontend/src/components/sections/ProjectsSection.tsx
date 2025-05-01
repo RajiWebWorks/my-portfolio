@@ -58,39 +58,41 @@ const ProjectsSection: React.FC = () => {
     return Array.from(categoriesSet);
   };
 
-  // Function to fetch projects
-  const fetchProjects = async () => {
-    setIsLoading(true);
-    setError(null);
-    console.log('Fetching projects...');
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/projects`);
-      console.log('Response:', response);
-      if (!response.ok) {
-        let errorMessage = `HTTP error! status: ${response.status}`;
-        throw new Error(errorMessage);
-      }
-      const data = await response.json();
-      console.log('Data:', data);
-      if (data.success && Array.isArray(data.data)) {
-        const processedData = data.data.map((project: Project) => ({
-          ...project,
-          codeUrl: project.codeUrl || null,
-          demoUrl: project.demoUrl || null
-        }));
-        setProjects(processedData);
-        setVisibleProjects(processedData);
-      } else {
-        throw new Error(data.message || 'Failed to fetch projects: Invalid data format');
-      }
-    } catch (err) {
-      console.error('Failed to fetch projects:', err);
-      setError(err instanceof Error ? err.message : 'An unknown error occurred while fetching projects.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+ // Update the fetch function with better error handling
+const fetchProjects = async () => {
+  setIsLoading(true);
+  setError(null);
+  
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/projects`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
+    console.log('API Response:', response);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('API Data:', data);
+
+    if (data.success && Array.isArray(data.data)) {
+      setProjects(data.data);
+      setVisibleProjects(data.data);
+    } else {
+      throw new Error('Invalid data format from API');
+    }
+  } catch (err) {
+    console.error('Fetch error:', err);
+    setError(err instanceof Error ? err.message : 'Unknown error');
+  } finally {
+    setIsLoading(false);
+  }
+};
   // Fetch projects when component mounts
   useEffect(() => {
     fetchProjects();
