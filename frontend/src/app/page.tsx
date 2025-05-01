@@ -1,6 +1,4 @@
-// In your page.tsx file
-"use client"
-
+// page.tsx
 import dynamic from 'next/dynamic';
 import AboutSection from "@/components/sections/AboutSection";
 import SkillsSection from "@/components/sections/SkillsSection";
