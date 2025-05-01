@@ -1,6 +1,10 @@
+// app/page.js or app/page.jsx
+
+'use client'; // Add this only if you're not using dynamic imports (optional in your case)
+
 import dynamic from 'next/dynamic';
 
-// Make all sections client-side only
+// Dynamically import all sections with SSR disabled
 const HeroSection = dynamic(() => import("@/components/sections/HeroSection"), { ssr: false });
 const AboutSection = dynamic(() => import("@/components/sections/AboutSection"), { ssr: false });
 const SkillsSection = dynamic(() => import("@/components/sections/SkillsSection"), { ssr: false });
