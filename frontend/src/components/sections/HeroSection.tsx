@@ -30,8 +30,15 @@ const HeroSection: React.FC = () => {
       }
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('mousemove', handleMouseMove);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('mousemove', handleMouseMove);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -97,7 +104,7 @@ const HeroSection: React.FC = () => {
       <div className="relative mx-auto max-w-7xl w-full min-h-screen px-4 sm:px-6 lg:px-8 flex flex-col justify-center pt-16 sm:pt-20 pb-10">
         {/* Content and image in one row on desktop, stacked on mobile */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
-          {/* Left content area - spans full width on mobile, 3 cols on desktop */}
+          {/* Left content area */}
           <motion.div
             className="col-span-1 lg:col-span-3 z-10 text-center lg:text-left"
             initial={{ opacity: 0, y: 30 }}
@@ -167,7 +174,7 @@ const HeroSection: React.FC = () => {
             </motion.p>
           </motion.div>
 
-          {/* Right profile image area - appears after content on mobile */}
+          {/* Right profile image area */}
           <motion.div
             className="col-span-1 lg:col-span-2 flex justify-center z-10 mt-6 lg:mt-0"
             initial={{ opacity: 0, scale: 0.95 }}
@@ -306,11 +313,11 @@ const HeroSection: React.FC = () => {
 
                 <motion.div
                   className="absolute inset-0 rounded-2xl opacity-0 bg-gradient-to-br from-white/20 via-white/0 to-transparent"
-                  animate={{ 
+                  animate={{
                     opacity: isHovered ? [0, 0.2, 0] : 0,
                     backgroundPosition: isHovered ? ['200% 200%', '-50% -50%'] : '200% 200%'
                   }}
-                  transition={{ 
+                  transition={{
                     opacity: { duration: 1.2, repeat: isHovered ? Infinity : 0, repeatDelay: 0.5 },
                     backgroundPosition: { duration: 1.2, repeat: isHovered ? Infinity : 0, repeatDelay: 0.5 }
                   }}
@@ -332,7 +339,7 @@ const HeroSection: React.FC = () => {
           </motion.div>
         </div>
 
-        {/* CTA buttons - now placed below both content and image on mobile */}
+        {/* CTA buttons */}
         <motion.div
           className="mt-8 sm:mt-10 flex flex-wrap gap-3 sm:gap-4 justify-center lg:justify-start"
           initial={{ opacity: 0, y: 20 }}
