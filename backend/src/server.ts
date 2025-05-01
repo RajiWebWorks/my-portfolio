@@ -8,11 +8,22 @@ dotenv.config();
 
 const PORT = process.env.PORT || 5000; // Default to 5000 if PORT not in .env
 
-// Place CORS middleware BEFORE routes are defined and BEFORE starting the server
+// Improved CORS configuration
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://my-portfolio-gules-theta-99.vercel.app'],
+  // Define the allowed origins
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    const allowedOrigins = ['http://localhost:3000', 'https://my-portfolio-gules-theta-99.vercel.app'];
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('Blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
+  credentials: true,
+  maxAge: 86400 // Cache preflight request results for 24 hours (in seconds)
 }));
 
 const startServer = async () => {
