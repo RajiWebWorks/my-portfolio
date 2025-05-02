@@ -7,23 +7,30 @@ import Footer from "@/components/layout/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Rajeshwari - Portfolio", 
-  description: "Web Developer Portfolio ", 
+  title: "Rajeshwari - Portfolio",
+  description: "Web Developer Portfolio",
+  // Add more metadata for better SEO
+  metadataBase: new URL('https://your-production-domain.com'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    images: '/og-image.jpg',
+  },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="en" className="scroll-smooth"> {/* Added scroll-smooth */}
-      <body className={`${inter.className} flex flex-col min-h-screen bg-gray-100`}> {/* Added flex layout */}
-          <Header />
-          <main className="flex-grow pt-16"> {/* Added padding-top to avoid overlap with fixed header */}
-        {children}
-          </main>
-          <Footer />
+    <html lang="en" className="scroll-smooth">
+      <body className={`${inter.className} flex flex-col min-h-screen bg-gray-100`}>
+        {/* No whitespace between these elements to prevent hydration errors */}
+        <Header />
+        <main className="flex-grow pt-16">{children}</main>
+        <Footer />
       </body>
     </html>
   );

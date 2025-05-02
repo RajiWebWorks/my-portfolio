@@ -1,4 +1,5 @@
 'use client';
+import projectsData from '@/data/projects.json';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
@@ -13,7 +14,6 @@ import {
 } from "@/components/ui/tooltip";
 
 const ProjectsSection: React.FC = () => {
-  // State management
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +21,6 @@ const ProjectsSection: React.FC = () => {
   const [visibleProjects, setVisibleProjects] = useState<Project[]>([]);
   const [expandedDescriptions, setExpandedDescriptions] = useState<Record<string, boolean>>({});
   
-  // Scroll animation setup
   const sectionRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -36,18 +35,12 @@ const ProjectsSection: React.FC = () => {
     threshold: 0.1,
   });
 
-  // Update the API base URL for production
-  const API_BASE_URL = 'https://my-portfolio-vqy5.onrender.com';
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://my-portfolio-vqy5.onrender.com';
 
-  // Helper function to format image URLs
   const getImageUrl = (imageUrl: string | undefined) => {
-    if (!imageUrl) return '';
-    if (imageUrl.startsWith('http')) return imageUrl;
-    if (imageUrl.startsWith('/images/')) return imageUrl;
-    return `${API_BASE_URL}${imageUrl}`;
+    if (!imageUrl) return '/placeholder-project.jpg'; // Fallback if no image
+    return imageUrl; // Just return the path as-is (e.g., "/images/xyz.png")
   };
-
-  // Extract unique categories from projects
   const getCategories = () => {
     const categoriesSet = new Set<string>();
     projects.forEach(project => {
@@ -57,48 +50,81 @@ const ProjectsSection: React.FC = () => {
     });
     return Array.from(categoriesSet);
   };
-
- // Update the fetch function with better error handling
+ // Modified fetchProjects function in ProjectsSection.tsx
 const fetchProjects = async () => {
   setIsLoading(true);
-  setError(null);
-  
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/projects`, {
+    console.log(`Fetching from: ${API_BASE_URL}/api/projects`);
+    
+    // Approach 1: Using the Next.js API route (best practice)
+    // Change the URL to use relative path for Next.js API routes
+    const response = await fetch('/api/projects', {
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
     });
-
-    console.log('API Response:', response);
-
+    
+    // Approach 2: Direct API call with proper CORS handling
+    // const response = await fetch(`${API_BASE_URL}/api/projects`, {
+    //   method: 'GET',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'Accept': 'application/json',
+    //   },
+    //   credentials: 'include',
+    // });
+    
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-
+    
     const data = await response.json();
-    console.log('API Data:', data);
-
-    if (data.success && Array.isArray(data.data)) {
-      setProjects(data.data);
-      setVisibleProjects(data.data);
-    } else {
-      throw new Error('Invalid data format from API');
-    }
+    console.log("Fetched projects data:", data);
+    setProjects(data.data || []);
   } catch (err) {
     console.error('Fetch error:', err);
-    setError(err instanceof Error ? err.message : 'Unknown error');
+    setError(err instanceof Error ? err.message : 'Failed to load projects');
+    // Fallback to local data
+    console.log("Using fallback project data");
+    if (projectsData?.data) setProjects(projectsData.data);
   } finally {
     setIsLoading(false);
   }
 };
-  // Fetch projects when component mounts
+// Modified Image component in ProjectsSection.tsx
+const ProjectImage = ({ src, alt }: { src: string, alt: string }) => {
+  const [imgSrc, setImgSrc] = useState<string>(src);
+  
+  // Safe image URL handling
+  useEffect(() => {
+    if (src) {
+      setImgSrc(src);
+    } else {
+      setImgSrc('/placeholder-project.jpg');
+    }
+  }, [src]);
+  
+  return (
+    <Image
+      src={imgSrc}
+      alt={alt}
+      fill
+      priority={false}
+      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+      className="object-cover"
+      onError={() => {
+        console.log("Image failed to load, using placeholder");
+        setImgSrc('/placeholder-project.jpg');
+      }}
+    />
+  );
+};
   useEffect(() => {
     fetchProjects();
   }, []);
 
-  // Filter projects when category changes
   useEffect(() => {
     if (activeCategory === 'all') {
       setVisibleProjects(projects);
@@ -112,7 +138,6 @@ const fetchProjects = async () => {
     }
   }, [activeCategory, projects]);
 
-  // Function to toggle description expansion
   const toggleDescription = (projectId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setExpandedDescriptions(prev => ({
@@ -121,7 +146,6 @@ const fetchProjects = async () => {
     }));
   };
 
-  // Dynamic color functions based on project index
   const getProjectColor = (index: number) => {
     const colors = ['teal', 'purple', 'cyan', 'emerald', 'indigo'];
     return colors[index % colors.length];
@@ -182,7 +206,6 @@ const fetchProjects = async () => {
     }
   };
 
-  // Handle navigation to project links
   const handleProjectClick = (url: string | null | undefined) => {
     if (url) window.open(url, '_blank', 'noopener,noreferrer');
   };
@@ -194,16 +217,12 @@ const fetchProjects = async () => {
         id="projects" 
         className="py-16 md:py-24 lg:py-32 relative bg-zinc-950 overflow-hidden"
       >
-        {/* Enhanced background elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-[0.03] mix-blend-soft-light"></div>
           <div className="absolute inset-0 bg-gradient-radial from-teal-900/5 to-transparent opacity-20"></div>
-          
-          {/* Geometric shapes */}
           <div className="absolute top-20 right-10 w-64 h-64 rounded-full bg-teal-500/5 blur-3xl"></div>
           <div className="absolute bottom-20 left-10 w-80 h-80 rounded-full bg-purple-500/5 blur-3xl"></div>
           
-          {/* Animated dots pattern */}
           <div className="absolute inset-0 opacity-10">
             {Array.from({ length: 20 }).map((_, i) => (
               <div 
@@ -221,13 +240,11 @@ const fetchProjects = async () => {
             ))}
           </div>
           
-          {/* Glowing border effects */}
           <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-teal-500/20 to-transparent"></div>
           <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-teal-500/20 to-transparent"></div>
         </div>
         
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          {/* Section heading with unique underline animation */}
           <motion.div 
             style={{ opacity, y }}
             className="relative z-10 mb-12 md:mb-16 lg:mb-20 text-center"
@@ -252,7 +269,6 @@ const fetchProjects = async () => {
             </div>
           </motion.div>
 
-          {/* Category Filter Pills */}
           {!isLoading && projects.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -294,7 +310,6 @@ const fetchProjects = async () => {
             </motion.div>
           )}
 
-          {/* Loading State */}
           {isLoading && (
             <div className="flex justify-center items-center py-24">
               <div className="w-24 h-24 relative">
@@ -305,7 +320,6 @@ const fetchProjects = async () => {
             </div>
           )}
 
-          {/* Error Message */}
           {error && !isLoading && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -325,7 +339,6 @@ const fetchProjects = async () => {
             </motion.div>
           )}
 
-          {/* Empty State */}
           {!isLoading && !error && projects.length === 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -339,7 +352,6 @@ const fetchProjects = async () => {
             </motion.div>
           )}
 
-          {/* No Results for Filter */}
           {!isLoading && !error && projects.length > 0 && visibleProjects.length === 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -359,10 +371,8 @@ const fetchProjects = async () => {
             </motion.div>
           )}
 
-          {/* Projects Grid with Featured Project */}
           {!isLoading && visibleProjects.length > 0 && (
             <div className="space-y-12 md:space-y-16">
-              {/* Featured Project */}
               {visibleProjects.length > 0 && (
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
@@ -378,7 +388,6 @@ const fetchProjects = async () => {
                   >
                     <div className="bg-zinc-900/90 backdrop-blur-sm border border-zinc-800 group-hover:border-teal-500/30 rounded-xl overflow-hidden transition-all duration-300">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
-                        {/* Left - Image Section */}
                         <div className="relative h-64 sm:h-80 md:h-96 lg:h-[450px] overflow-hidden">
                           {visibleProjects[0]?.imageUrl ? (
                             <Image
@@ -395,13 +404,11 @@ const fetchProjects = async () => {
                             </div>
                           )}
                           
-                          {/* Decorative elements */}
                           <div className="absolute top-3 left-3 w-5 h-5 border-t border-l border-teal-500/40 rounded-tl-lg"></div>
                           <div className="absolute top-3 right-3 w-5 h-5 border-t border-r border-teal-500/40 rounded-tr-lg"></div>
                           <div className="absolute bottom-3 left-3 w-5 h-5 border-b border-l border-teal-500/40 rounded-bl-lg"></div>
                           <div className="absolute bottom-3 right-3 w-5 h-5 border-b border-r border-teal-500/40 rounded-br-lg"></div>
                           
-                          {/* Project categories tags */}
                           {visibleProjects[0]?.categories && (
                             <div className="absolute top-3 sm:top-4 left-3 sm:left-4 flex flex-wrap gap-1.5 sm:gap-2">
                               {visibleProjects[0].categories.slice(0, 3).map((category, idx) => (
@@ -421,9 +428,7 @@ const fetchProjects = async () => {
                           )}
                         </div>
                         
-                        {/* Right - Content Section */}
                         <div className="p-6 sm:p-8 md:p-10 flex flex-col h-full relative">
-                          {/* Glowing accent elements */}
                           <div className="absolute -bottom-20 -right-20 w-40 h-40 rounded-full bg-gradient-to-br from-teal-500/10 to-emerald-500/5 blur-xl"></div>
                           <div className="absolute -top-20 -left-20 w-40 h-40 rounded-full bg-gradient-to-br from-purple-500/10 to-transparent blur-xl"></div>
                           
@@ -462,7 +467,6 @@ const fetchProjects = async () => {
                               )}
                             </div>
                             
-                            {/* Tech stack */}
                             {visibleProjects[0]?.techStack && Array.isArray(visibleProjects[0].techStack) && (
                               <div className="mb-6 sm:mb-8">
                                 <h4 className="text-xs sm:text-sm font-medium text-zinc-400 mb-2 sm:mb-3">Technologies Used</h4>
@@ -485,7 +489,6 @@ const fetchProjects = async () => {
                             )}
                           </div>
                           
-                          {/* Links Section */}
                           <div className="mt-auto pt-4 sm:pt-6 border-t border-zinc-800 flex flex-wrap gap-4 sm:gap-6">
                             {visibleProjects[0]?.demoUrl && (
                               <a 
@@ -524,7 +527,6 @@ const fetchProjects = async () => {
                 </motion.div>
               )}
               
-              {/* Regular Projects Grid */}
               <div ref={ref} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 {visibleProjects.slice(1).map((project, index) => {
                   const projectColor = getProjectColor(index);
@@ -538,16 +540,13 @@ const fetchProjects = async () => {
                       viewport={{ once: true }}
                       className="group relative"
                     >
-                      {/* Card Highlight Glow Effect */}
                       <div className={`absolute -inset-0.5 bg-gradient-to-r ${getGradient(projectColor)} rounded-xl opacity-0 group-hover:opacity-70 blur-lg transition duration-500`}></div>
                       
                       <div 
                         className="relative h-full cursor-pointer" 
                         onClick={() => handleProjectClick(project.codeUrl)}
                       >
-                        {/* Card Content */}
                         <div className={`flex flex-col h-full bg-zinc-900/80 backdrop-blur-sm border ${getBorderColor(projectColor)} rounded-xl overflow-hidden transition-all duration-300`}>
-                          {/* Project Image */}
                           <div className="relative h-48 sm:h-52 lg:h-60 overflow-hidden">
                             {project.imageUrl ? (
                               <Image
@@ -564,7 +563,6 @@ const fetchProjects = async () => {
                               </div>
                             )}
                             
-                            {/* Project categories tags */}
                             {project.categories && (
                               <div className="absolute top-2 sm:top-3 left-2 sm:left-3 flex flex-wrap gap-1 sm:gap-1.5">
                                 {project.categories.slice(0, 2).map((category, idx) => (
@@ -584,7 +582,6 @@ const fetchProjects = async () => {
                             )}
                           </div>
                           
-                          {/* Project Content */}
                           <div className="flex-grow p-4 sm:p-5 lg:p-6 flex flex-col">
                             <div className="flex-grow">
                               <h3 className={`text-lg sm:text-xl font-semibold ${getTextColor(projectColor)} group-hover:text-white mb-2 transition-colors duration-300`}>
@@ -613,7 +610,6 @@ const fetchProjects = async () => {
                               </div>
                             </div>
                             
-                            {/* Tech Stack Tags */}
                             {project.techStack && Array.isArray(project.techStack) && project.techStack.length > 0 && (
                               <div className="mt-2 mb-3 sm:mb-4">
                                 <h4 className="text-xs text-zinc-500 mb-1.5">Tech Stack</h4>
@@ -635,7 +631,6 @@ const fetchProjects = async () => {
                               </div>
                             )}
                             
-                            {/* Project Links */}
                             <div className="flex items-center gap-3 mt-auto pt-3 border-t border-zinc-800/80">
                               {project.demoUrl && (
                                 <Tooltip>
@@ -679,7 +674,6 @@ const fetchProjects = async () => {
                                 </Tooltip>
                               )}
                               
-                              {/* Project Accent Light */}
                               <div className={`ml-auto w-2 h-2 rounded-full ${getTextColor(projectColor)} ring-2 ring-offset-2 ring-offset-zinc-900 ring-${projectColor}-500/50 opacity-50 group-hover:opacity-100 group-hover:scale-125 transition-all duration-300`}></div>
                             </div>
                           </div>

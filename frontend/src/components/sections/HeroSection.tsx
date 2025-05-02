@@ -1,4 +1,5 @@
-"use client"
+'use client';
+
 import React, { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
@@ -53,17 +54,16 @@ const HeroSection: React.FC = () => {
     <motion.div
       ref={containerRef}
       className="relative w-full min-h-screen overflow-hidden bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950"
-    >
-      {/* Background effects */}
+      >
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-[0.03] mix-blend-soft-light"></div>
-        <motion.div
+      <div className="absolute inset-0 bg-noise opacity-[0.03] mix-blend-soft-light"></div>
+      <motion.div
           className="absolute inset-0 opacity-20"
           style={{
             background: `radial-gradient(circle at ${50 + mousePosition.x * 50}% ${50 + mousePosition.y * 50}%, rgba(94, 234, 212, 0.15) 0%, rgba(0, 0, 0, 0) 70%)`,
           }}
         ></motion.div>
-        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-repeat opacity-[0.02]"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] opacity-[0.02]"></div>
         <motion.div
           className="absolute top-0 left-0 w-full h-px"
           style={{
@@ -100,18 +100,14 @@ const HeroSection: React.FC = () => {
         ))}
       </div>
 
-      {/* Main content container */}
       <div className="relative mx-auto max-w-7xl w-full min-h-screen px-4 sm:px-6 lg:px-8 flex flex-col justify-center pt-16 sm:pt-20 pb-10">
-        {/* Content and image in one row on desktop, stacked on mobile */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
-          {/* Left content area */}
           <motion.div
             className="col-span-1 lg:col-span-3 z-10 text-center lg:text-left"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            {/* Status indicator */}
             <motion.div
               className="inline-flex items-center px-3 py-1.5 mb-4 sm:mb-6 rounded-full bg-gradient-to-r from-teal-500/10 to-emerald-500/10 border border-teal-500/20 backdrop-blur-sm"
               initial={{ opacity: 0, y: 20 }}
@@ -125,7 +121,6 @@ const HeroSection: React.FC = () => {
               <span className="text-teal-300 text-xs sm:text-sm font-medium tracking-wide">Full Stack Developer</span>
             </motion.div>
 
-            {/* Name and intro */}
             <div className="space-y-1 sm:space-y-2">
               <h2 className="text-lg sm:text-xl text-zinc-200 font-medium">Hello, I'm</h2>
               <div className="relative">
@@ -144,7 +139,6 @@ const HeroSection: React.FC = () => {
               <p className="text-md sm:text-lg text-zinc-300 mt-1">from India</p>
             </div>
 
-            {/* Rotating skills */}
             <div className="mt-6 sm:mt-8">
               <p className="text-sm sm:text-base text-zinc-400 mb-1 sm:mb-2">Specializing in</p>
               <div className="h-8 sm:h-10 relative overflow-hidden">
@@ -163,7 +157,6 @@ const HeroSection: React.FC = () => {
               </div>
             </div>
 
-            {/* Description */}
             <motion.p
               className="mt-4 sm:mt-6 text-zinc-300 max-w-lg mx-auto lg:mx-0 text-base sm:text-lg"
               initial={{ opacity: 0 }}
@@ -174,7 +167,6 @@ const HeroSection: React.FC = () => {
             </motion.p>
           </motion.div>
 
-          {/* Right profile image area */}
           <motion.div
             className="col-span-1 lg:col-span-2 flex justify-center z-10 mt-6 lg:mt-0"
             initial={{ opacity: 0, scale: 0.95 }}
@@ -283,14 +275,19 @@ const HeroSection: React.FC = () => {
                     y: { duration: 0.2, ease: "easeOut" }
                   }}
                 >
-                  <div className="relative w-full h-full">
-                    <Image
-                      src="/images/profile.jpg"
-                      alt="Rajeshwari Kumar"
-                      fill
-                      style={{ objectFit: 'cover' }}
-                      className="rounded-2xl transition-all duration-500"
-                    />
+       {/* Updated Profile Image */}
+       <div className="relative w-full h-full">
+        <Image
+          src="/images/profile.jpg"
+          alt="Profile Image"
+          fill
+          priority
+          sizes="(max-width: 768px) 100vw, 50vw"
+          className="object-cover rounded-2xl"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = '/placeholder-profile.jpg';
+          }}
+        />
                     
                     <motion.div 
                       className="absolute inset-0 rounded-2xl bg-gradient-to-b from-teal-500/5 to-emerald-500/20"
@@ -339,7 +336,6 @@ const HeroSection: React.FC = () => {
           </motion.div>
         </div>
 
-        {/* CTA buttons */}
         <motion.div
           className="mt-8 sm:mt-10 flex flex-wrap gap-3 sm:gap-4 justify-center lg:justify-start"
           initial={{ opacity: 0, y: 20 }}

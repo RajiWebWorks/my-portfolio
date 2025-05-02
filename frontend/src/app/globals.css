@@ -119,3 +119,35 @@
     @apply bg-background text-foreground;
   }
 }
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* [Your existing root variables remain the same...] */
+}
+
+/* Enhanced noise effect */
+.bg-noise {
+  background-image: 
+    linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Fix for hydration warnings */
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* Image fallback styling */
+img {
+  @apply transition-all duration-300;
+}
+
+img[src$=".svg"] {
+  @apply w-full h-auto;
+}
