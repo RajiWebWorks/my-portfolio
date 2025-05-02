@@ -50,49 +50,24 @@ const ProjectsSection: React.FC = () => {
     });
     return Array.from(categoriesSet);
   };
- // Modified fetchProjects function in ProjectsSection.tsx
-const fetchProjects = async () => {
-  setIsLoading(true);
-  try {
-    console.log(`Fetching from: ${API_BASE_URL}/api/projects`);
-    
-    // Approach 1: Using the Next.js API route (best practice)
-    // Change the URL to use relative path for Next.js API routes
-    const response = await fetch('/api/projects', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    });
-    
-    // Approach 2: Direct API call with proper CORS handling
-    // const response = await fetch(`${API_BASE_URL}/api/projects`, {
-    //   method: 'GET',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'Accept': 'application/json',
-    //   },
-    //   credentials: 'include',
-    // });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+  const fetchProjects = async () => {
+    setIsLoading(true);
+    try {
+      // Now calls the Next.js API route (/api/projects)
+      const response = await fetch('/api/projects');
+      
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      
+      const data = await response.json();
+      setProjects(data.data || []);
+    } catch (err) {
+      console.error('Fetch error:', err);
+      setError('Failed to load projects (using fallback data)');
+      if (projectsData?.data) setProjects(projectsData.data);
+    } finally {
+      setIsLoading(false);
     }
-    
-    const data = await response.json();
-    console.log("Fetched projects data:", data);
-    setProjects(data.data || []);
-  } catch (err) {
-    console.error('Fetch error:', err);
-    setError(err instanceof Error ? err.message : 'Failed to load projects');
-    // Fallback to local data
-    console.log("Using fallback project data");
-    if (projectsData?.data) setProjects(projectsData.data);
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 // Modified Image component in ProjectsSection.tsx
 const ProjectImage = ({ src, alt }: { src: string, alt: string }) => {
   const [imgSrc, setImgSrc] = useState<string>(src);
