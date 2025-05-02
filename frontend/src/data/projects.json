@@ -1,12 +1,12 @@
 {
-  "data": [
-    {
-      "_id": "1",
-      "title": "Example Project",
-      "description": "Sample description",
-      "categories": ["Web"],
-      "techStack": ["React"],
-      "imageUrl": "/placeholder.jpg"
-    }
-  ]
-}
+    "data": [
+      {
+        "_id": "1",
+        "title": "Example Project",
+        "description": "Sample description",
+        "categories": ["Web"],
+        "techStack": ["React"],
+        "imageUrl": "/placeholder.jpg"
+      }
+    ]
+  }
